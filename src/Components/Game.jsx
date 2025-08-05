@@ -22,45 +22,64 @@ class CellClass {
     // Método que retorna as células ao redor da célula atual
     cellAround(field) {
         const cells = []; // Array para armazenar as células ao redor
-        for (let yy = -1; yy <= 1; yy++) { // Loop para percorrer as linhas ao redor
-            const cy = this.y + yy; // Calcula a coordenada y da célula ao redor
-            if (cy < 0 || cy >= field.length) continue; // Verifica se a coordenada y está dentro dos limites
-            for (let xx = -1; xx <= 1; xx++) { // Loop para percorrer as colunas ao redor
-                if (xx === 0 && yy === 0) continue; // Pula a célula atual
-                const cx = this.x + xx; // Calcula a coordenada x da célula ao redor
-                if (cx < 0 || cx >= field[0].length) continue; // Verifica se a coordenada x está dentro dos limites
-                cells.push(field[cy][cx]); // Adiciona a célula ao array
+        const directions = [
+            [-1, -1], [-1, 0], [-1, 1],
+            [0, -1],           [0, 1],
+            [1, -1],  [1, 0],  [1, 1]
+        ];
+        
+        for (const [dy, dx] of directions) {
+            const newY = this.y + dy;
+            const newX = this.x + dx;
+            
+            // Verificar se as coordenadas estão dentro dos limites
+            if (newY >= 0 && newY < field.length && 
+                newX >= 0 && newX < field[0].length) {
+                cells.push(field[newY][newX]);
             }
         }
+        
         return cells; // Retorna as células ao redor
     }
 }
 
 // Função para inicializar o tabuleiro de jogo
-const init = (height, width, bombs) => {
+const init = (width, height, bombs) => {
     const field = []; // Array para armazenar as linhas do tabuleiro
+    
+    // Criar o tabuleiro vazio
     for (let y = 0; y < height; y++) { // Loop para criar as linhas do tabuleiro
         const row = []; // Array para armazenar as células de uma linha
-        for (let x = 0; x < width; x++) row.push(new CellClass(x, y)); // Cria uma célula e adiciona à linha
+        for (let x = 0; x < width; x++) {
+            row.push(new CellClass(x, y)); // Cria uma célula e adiciona à linha
+        }
         field.push(row); // Adiciona a linha ao tabuleiro
     }
-    for (let i = 0; i < bombs; i++) { // Loop para distribuir as bombas no tabuleiro
-        while (true) { // Loop para encontrar uma célula sem bomba
-            const x = Math.floor(width * Math.random()); // Gera uma coordenada x aleatória
-            const y = Math.floor(height * Math.random()); // Gera uma coordenada y aleatória
-            if (field[y] && field[y][x] && !field[y][x].bomb) { // Verifica se a célula não tem bomba
-                field[y][x].bomb = true; // Coloca uma bomba na célula
-                break; // Sai do loop
+    
+    // Colocar as bombas
+    let bombsPlaced = 0;
+    while (bombsPlaced < bombs) {
+        const x = Math.floor(Math.random() * width); // Gera uma coordenada x aleatória
+        const y = Math.floor(Math.random() * height); // Gera uma coordenada y aleatória
+        
+        // Verificar se a posição é válida e não tem bomba
+        if (field[y] && field[y][x] && !field[y][x].bomb) {
+            field[y][x].bomb = true; // Coloca uma bomba na célula
+            bombsPlaced++;
+        }
+    }
+    
+    // Calcular números ao redor das bombas
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            const cell = field[y][x];
+            if (!cell.bomb) {
+                const neighboringCells = cell.cellAround(field);
+                cell.bombsAround = neighboringCells.filter(c => c && c.bomb).length;
             }
         }
     }
-    field.forEach(row => { // Loop para percorrer todas as linhas
-        row.forEach(cell => { // Loop para percorrer todas as células de uma linha
-            if (!cell.bomb) { // Se a célula não tem bomba
-                cell.bombsAround = cell.cellAround(field).filter(c => c.bomb).length; // Conta as bombas ao redor
-            }
-        });
-    });
+    
     return field; // Retorna o tabuleiro inicializado
 }
 
