@@ -3,9 +3,9 @@ import Cell from './Cell';
 import './Game.css'; 
 
 const levels = {
-    basic: { width: 9, height: 9, bombs: 10, cellSize: 50 },
-    intermediate: { width: 16, height: 16, bombs: 40, cellSize: 40 },
-    advanced: { width: 30, height: 16, bombs: 99, cellSize: 30 }
+    basic: { width: 9, height: 9, bombs: 10, cellSize: 40 },
+    intermediate: { width: 16, height: 16, bombs: 40, cellSize: 35 },
+    advanced: { width: 30, height: 16, bombs: 99, cellSize: 25 }
 };
 
 // Classe que representa cada célula no tabuleiro
@@ -203,15 +203,17 @@ const Game = () => {
         <div className="game-container">
             <div className="control-panel">
                 <select value={level} onChange={handleChangeLevel} disabled={gameStarted}>
-                    <option value="basic">Básico</option>
-                    <option value="intermediate">Intermédio</option>
-                    <option value="advanced">Avançado</option>
+                    <option value="basic">🔰 Básico (9×9)</option>
+                    <option value="intermediate">⚡ Intermédio (16×16)</option>
+                    <option value="advanced">🔥 Avançado (30×16)</option>
                 </select>
                 <button onClick={startGame}>
-                    {gameStarted ? 'Reiniciar Jogo' : 'Começar Jogo'}
+                    {gameStarted ? '🔄 Reiniciar Jogo' : '🎮 Começar Jogo'}
                 </button>
-                <div className="flag-counter">Bandeiras: {flags}/{bombs}</div>
-                <div className="timer">Tempo: {timeElapsed} segundos</div>
+                <div className="info-display">
+                    <div className="flag-counter">🚩 {flags}/{bombs}</div>
+                    <div className="timer">⏱️ {timeElapsed}s</div>
+                </div>
             </div>
             <div 
                 className="game" 
